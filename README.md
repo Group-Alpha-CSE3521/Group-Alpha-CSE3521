@@ -30,7 +30,7 @@ Streamlit Community Cloud
 | Alec Lusk | Analyst / Writer |
 
 ## Milestones
-- M1: November 8, 2026
+- M1: November 10, 2026
 - M2: November 15, 2026
 - M3: November 22, 2026
 - M4: November 29, 2026
