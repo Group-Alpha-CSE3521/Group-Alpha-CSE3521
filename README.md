@@ -40,9 +40,9 @@ Streamlit Community Cloud
 ## Setup
 1. Install dependencies:
    `pip install -r requirements.txt`
-2. Place the team's dataset at `data/group_sample_seed42.csv`.
+2. Place the dataset at `data/`.
 3. Run feature engineering:
-   `python src/m2_data_features.py --data data/group_sample_seed42.csv`
+   `python src/3521alphaflagship_dataengineer.py --data data/dataset.csv`
 4. Launch the app:
    `streamlit run app.py`
 
