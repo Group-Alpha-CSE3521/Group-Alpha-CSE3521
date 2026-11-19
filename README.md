@@ -1,3 +1,4 @@
+
 # Group Alpha
 ## Amazon Food Review Sentiment Analysis
 
@@ -9,13 +10,13 @@ Amazon Fine Food Reviews
 Shared sample: 50,000 reviews
 
 ## Feature Engineering
-- Bag of Words
 - TF-IDF
+- Word2Vec (100-dimensional embeddings)
 
 ## Machine Learning Models
 - Multinomial Naive Bayes
 - Logistic Regression
-- Feedforward Neural Network
+- LSTM
 
 ## Deployment
 Streamlit Community Cloud
@@ -31,9 +32,34 @@ Streamlit Community Cloud
 
 ## Milestones
 - M1: November 10, 2026
-- M2: November 15, 2026
+- M2: November 18, 2026
 - M3: November 22, 2026
 - M4: November 29, 2026
 - Demo: TBD
 
 ## Setup
+1. Install dependencies:
+   `pip install -r requirements.txt`
+2. Place the team's dataset at `data/group_sample_seed42.csv`.
+3. Run feature engineering:
+   `python src/m2_data_features.py --data data/group_sample_seed42.csv`
+4. Launch the app:
+   `streamlit run app.py`
+
+## M2 Progress
+- Cleaned dataset: 46,318 reviews.
+- Implemented TF-IDF (5,000 features) and Word2Vec.
+- Naive Bayes accuracy: 82.66% (majority baseline: 78.01%).
+- Completed confusion matrix and error analysis.
+- Built initial Streamlit UI (predictions not integrated yet).
+
+## Next Steps - M3
+- Train Logistic Regression and a deep learning model.
+- Compare model performance and tune parameters.
+- Integrate two trained models into Streamlit.
+- Complete deployment testing and documentation.
+
+## Data
+Dataset source: https://www.kaggle.com/datasets/snap/amazon-fine-food-reviews
+
+Raw and processed CSV files should not be committed.
