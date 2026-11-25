@@ -6,3 +6,5 @@ scikit-learn==1.8.0
 matplotlib==3.10.8
 gensim==4.4.0
 joblib==1.5.3
+kagglehub==1.0.3
+torch==2.15.0
