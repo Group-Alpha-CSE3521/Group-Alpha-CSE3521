@@ -7,19 +7,23 @@ An AI-powered text intelligence platform for classifying sentiment in Amazon foo
 
 ## Dataset
 Amazon Fine Food Reviews
-Shared sample: 50,000 reviews
+Shared sample: 50,000 reviews (random seed 42). After removing missing values, duplicate review texts, and empty cleaned reviews, 46,318 remain: 37,054 for training and 9,264 for testing. Reviews with 1-3 stars are labeled negative, 4-5 stars are labeled positive. 
 
 ## Feature Engineering
-- TF-IDF
-- Word2Vec (100-dimensional embeddings)
+- TF-IDF (5,000 features for the classical models)
+- Word2Vec (100-dimensional embeddings for the BiLSTM)
 
 ## Machine Learning Models
 - Multinomial Naive Bayes
 - Logistic Regression
-- LSTM
+- Bidirectional LSTM (BiLSTM)
 
 ## Deployment
-Streamlit Community Cloud
+Streamlit application with three tabs:
+- Live Predication: Enter a review and compare predictions.
+- Model Performance: View reported evaluation metrics and confusion matrices.
+- Dataset Insights: View the data split and sentiment distribution.
+Deployment: https://groupalpha.streamlit.app
 
 ## Team Members
 | Name | Primary Role |
@@ -33,9 +37,9 @@ Streamlit Community Cloud
 ## Milestones
 - M1: November 10, 2026
 - M2: November 18, 2026
-- M3: November 22, 2026
-- M4: November 29, 2026
-- Demo: TBD
+- M3: November 25, 2026
+- M4a: November 29, 2026
+- Demo: Dec 3, 2026
 
 ## Run the app
 
@@ -55,11 +59,10 @@ streamlit run app.py
 - Completed confusion matrix and error analysis.
 - Built initial Streamlit UI (predictions not integrated yet).
 
-## Next Steps - M3
-- Train Logistic Regression and a deep learning model.
-- Compare model performance and tune parameters.
-- Integrate two trained models into Streamlit.
-- Complete deployment testing and documentation.
+## M3 Progress 
+- Trained and evaluated Naive Bayes, Logistic Regression, and BiLSTM on the shared dataset split.
+- Compared model accuracy, precision, recall, F1-score, and confusion matrices; recorded BiLSTM training and validation losses.
+- Built a Streamlit interface showing live predictions from all three models, model performance, and dataset insights.
 
 ## Data
 Dataset source: https://www.kaggle.com/datasets/snap/amazon-fine-food-reviews
