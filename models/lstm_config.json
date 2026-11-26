@@ -1,0 +1,8 @@
+{
+  "hidden_dim": 128,
+  "layer_dim": 2,
+  "dropout": 0.3,
+  "vocab_size": 22087,
+  "embed_dim": 100,
+  "seq_length": 150
+}
