@@ -1,15 +1,54 @@
 {
   "Naive Bayes": {
-    "accuracy": 0.8266,
-    "source": "README.md, M2 Progress"
+    "accuracy": 0.8238341968911918,
+    "precision": 0.8650011843526373,
+    "recall": 0.6033421624997308,
+    "f1": 0.6214099946362329,
+    "confusion_matrix": [
+      [
+        429,
+        1590
+      ],
+      [
+        42,
+        7203
+      ]
+    ],
+    "source": "Merged model export scored on the seed-42 held-out test split (9,264 reviews)."
   },
-  "Logistic Regression": {},
+  "Logistic Regression": {
+    "accuracy": 0.874892055267703,
+    "precision": 0.8410286202245689,
+    "recall": 0.7679960663551335,
+    "f1": 0.7956431758571771,
+    "confusion_matrix": [
+      [
+        1168,
+        851
+      ],
+      [
+        308,
+        6937
+      ]
+    ],
+    "source": "Merged model export scored on the seed-42 held-out test split (9,264 reviews)."
+  },
   "BiLSTM": {
-    "accuracy": 0.8981001727115717,
-    "precision": 0.85,
-    "recall": 0.85,
-    "f1": 0.85,
-    "confusion_matrix": [[1522, 497], [447, 6798]],
-    "source": "notebooks/03_LSTM_Word-Embeddings.ipynb, held-out test output"
+    "accuracy": 0.8982081174438687,
+    "precision": 0.8541139326291962,
+    "recall": 0.8429240025144153,
+    "f1": 0.8483176475104659,
+    "confusion_matrix": [
+      [
+        1504,
+        515
+      ],
+      [
+        428,
+        6817
+      ]
+    ],
+    "source": "Merged model export scored on the seed-42 held-out test split (9,264 reviews). Training time comes from the BiLSTM notebook run with the matching confusion matrix.",
+    "training_seconds": 58.68
   }
 }

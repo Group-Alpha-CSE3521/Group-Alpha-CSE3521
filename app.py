@@ -2,6 +2,7 @@ import json
 import logging
 from pathlib import Path
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -10,19 +11,24 @@ from src.inference import LABELS, clean_text, load_lstm, load_tfidf, predict_lst
 
 ROOT = Path(__file__).resolve().parent
 MODELS = {
-    "Naive Bayes": ("naive_bayes.joblib",),
-    "Logistic Regression": ("logistic_regression.joblib",),
-    "BiLSTM": ("bilstm.pt", "bilstm_vocab.json"),
+    "Naive Bayes": ("naive_bayes.joblib", "tfidf_vectorizer.joblib"),
+    "Logistic Regression": ("logistic_regression.joblib", "tfidf_vectorizer.joblib"),
+    "BiLSTM": ("lstm_model.pt", "word2idx.json", "lstm_config.json"),
 }
 LOGGER = logging.getLogger(__name__)
+SENTIMENT_COLORS = {"Negative": "#f87171", "Positive": "#4ade80"}
+TEST_COUNTS = {"Negative": 2019, "Positive": 7245}
+TEST_TOTAL = sum(TEST_COUNTS.values())
+MAJORITY_LABEL = max(TEST_COUNTS, key=TEST_COUNTS.get)
+MAJORITY_ACCURACY = TEST_COUNTS[MAJORITY_LABEL] / TEST_TOTAL
 
 
 @st.cache_resource(show_spinner=False)
-def load_model(paths, fingerprints):
+def load_model(name, paths, fingerprints):
     # Fingerprints invalidate the cache when an export is replaced.
-    if len(paths) == 2:
+    if name == "BiLSTM":
         return load_lstm(*paths)
-    return load_tfidf(paths[0])
+    return load_tfidf(*paths)
 
 
 def analyze_review(review):
@@ -39,8 +45,8 @@ def analyze_review(review):
             with st.spinner(f"Loading and running {name}…", show_time=True):
                 stats = [path.stat() for path in paths]
                 fingerprints = tuple((stat.st_mtime_ns, stat.st_size) for stat in stats)
-                bundle = load_model(paths, fingerprints)
-                predict = predict_lstm if len(paths) == 2 else predict_tfidf
+                bundle = load_model(name, paths, fingerprints)
+                predict = predict_lstm if name == "BiLSTM" else predict_tfidf
                 predictions[name] = predict(bundle, review)
         except ImportError as exc:
             LOGGER.exception("Cannot import a dependency for %s", name)
@@ -68,24 +74,52 @@ def show_predictions(predictions, errors):
             "See the model cards below for details."
         )
     for column, name in zip(st.columns(len(MODELS)), MODELS):
-        with column, st.container(border=True):
+        with column, st.container(border=True, height=190):
             st.subheader(name)
             if name in errors:
                 st.error(errors[name])
                 continue
 
             label, confidence = predictions[name]
-            st.metric("Predicted sentiment", label)
+            color = {"Positive": "green", "Negative": "red"}[label]
+            st.markdown(f":{color}[**{label}**]")
             if confidence is None:
                 st.caption("This model does not provide a class probability.")
             else:
-                st.caption(f"Model probability for {label.lower()}: {confidence:.1%}")
+                st.progress(confidence, text=f"Predicted-class probability · {confidence:.1%}")
+
+
+def show_confusion_matrix(matrix):
+    labels = list(LABELS.values())
+    cells = pd.DataFrame(
+        [(actual, predicted, matrix[i][j])
+         for i, actual in enumerate(labels) for j, predicted in enumerate(labels)],
+        columns=["Actual", "Predicted", "Count"],
+    )
+    chart = alt.Chart(cells).encode(
+        x=alt.X("Predicted:N", sort=labels, axis=alt.Axis(labelAngle=0)),
+        y=alt.Y("Actual:N", sort=labels),
+        tooltip=["Actual:N", "Predicted:N", alt.Tooltip("Count:Q", format=",d")],
+    )
+    rectangles = chart.mark_rect(cornerRadius=4).encode(
+        color=alt.Color("Count:Q", scale=alt.Scale(scheme="blues", zero=True), legend=None),
+    )
+    counts = chart.mark_text(fontSize=16, fontWeight="bold").encode(
+        text=alt.Text("Count:Q", format=",d"),
+        color=alt.condition(
+            alt.datum.Count > cells["Count"].max() / 2, alt.value("white"), alt.value("#111827")
+        ),
+    )
+    st.altair_chart((rectangles + counts).properties(height=165), use_container_width=True)
 
 
 def show_performance():
     st.subheader("Reported evaluation")
-    st.caption("Precision, recall and F1 are macro averages across both sentiment classes. "
-               "A dash marks a value absent from the available reports.")
+    st.caption(
+        f"Majority-class baseline · **{MAJORITY_ACCURACY:.2%}** by predicting "
+        f"{MAJORITY_LABEL.lower()} for all {TEST_TOTAL:,} test reviews. "
+        "Precision, recall and F1 are macro averages. A dash marks an unverified value."
+    )
     try:
         metrics = json.loads((ROOT / "report/model_metrics.json").read_text(encoding="utf-8"))
         rows = []
@@ -99,22 +133,24 @@ def show_performance():
             ):
                 value = report.get(key)
                 row[heading] = "—" if value is None else (
-                    f"{value:,.2f} s" if key == "training_seconds" else f"{value:.2%}"
+                    f"{value:.4g} s" if key == "training_seconds" else f"{value:.2%}"
                 )
-            row["Source"] = report.get("source", "—")
             rows.append(row)
         st.dataframe(rows, hide_index=True, width="stretch")
 
-        for name, report in metrics.items():
-            if "confusion_matrix" in report:
-                st.subheader(f"{name} confusion matrix")
-                st.caption("Rows are actual labels. Columns are predicted labels.")
-                matrix = pd.DataFrame(
-                    report["confusion_matrix"],
-                    index=[f"Actual {label.lower()}" for label in LABELS.values()],
-                    columns=[f"Predicted {label.lower()}" for label in LABELS.values()],
-                )
-                st.dataframe(matrix, width="stretch")
+        matrices = {name: report["confusion_matrix"] for name, report in metrics.items()
+                    if "confusion_matrix" in report}
+        if matrices:
+            st.subheader("Confusion matrix")
+            selected = st.selectbox("Model", list(matrices), index=len(matrices) - 1)
+            show_confusion_matrix(matrices[selected])
+
+        with st.expander("Evaluation sources"):
+            for name, report in metrics.items():
+                if report.get("source"):
+                    st.markdown(f"**{name}** · {report['source']}")
+            st.caption("The BiLSTM time covers the training and validation loop. "
+                       "Training times for the two TF-IDF exports could not be verified.")
     except (OSError, ValueError, TypeError):
         LOGGER.exception("Cannot display evaluation report")
         st.error("The evaluation report could not be read. Check report/model_metrics.json.")
@@ -129,7 +165,7 @@ live, performance, insights = st.tabs(["Live Prediction", "Model Performance", "
 with live:
     st.write("Compare how the team's models classify an Amazon Fine Food review.")
     with st.form("review_form"):
-        review = st.text_area("Review text", placeholder="This coffee tastes great.", height=150)
+        review = st.text_area("Review text", placeholder="This coffee tastes great.", height=100)
         submitted = st.form_submit_button("Analyze Sentiment", type="primary")
 
     if submitted:
@@ -147,8 +183,7 @@ with live:
 
     analysis = st.session_state.get("review_analysis")
     if analysis is not None:
-        analyzed_review, truncated, predictions, errors = analysis
-        st.text(f"Submitted review: {analyzed_review}")
+        _, truncated, predictions, errors = analysis
         if truncated:
             st.caption("BiLSTM uses the first 150 tokens, matching training.")
         show_predictions(predictions, errors)
@@ -161,10 +196,22 @@ with insights:
     for column, (label, count) in zip(
         st.columns(4),
         [("Shared sample", 50000), ("After cleaning", 46318),
-         ("Training split", 37054), ("Test split", 9264)],
+         ("Training split", 37054), ("Test split", TEST_TOTAL)],
     ):
         column.metric(label, f"{count:,}")
     st.write("Reviews with 1–3 stars are labeled negative. Reviews with 4–5 stars are labeled positive.")
-    st.bar_chart({"Sentiment": ["Negative", "Positive"], "Test reviews": [2019, 7245]},
-                 x="Sentiment", y="Test reviews")
-    st.caption("Sources: project README and saved split counts and test output in the BiLSTM notebook.")
+    st.subheader("Test-set sentiment")
+    distribution = pd.DataFrame(TEST_COUNTS.items(), columns=["Sentiment", "Count"])
+    distribution["Share"] = distribution["Count"] / TEST_TOTAL
+    for column, (label, count, share) in zip(st.columns(2), distribution.itertuples(index=False)):
+        column.metric(label, f"{count:,} ({share:.2%})")
+    chart = alt.Chart(distribution).mark_bar(size=38, cornerRadiusEnd=4).encode(
+        x=alt.X("Count:Q", title="Test reviews", scale=alt.Scale(zero=True, domainMin=0)),
+        y=alt.Y("Sentiment:N", sort=list(TEST_COUNTS), title=None),
+        color=alt.Color("Sentiment:N", scale=alt.Scale(
+            domain=list(SENTIMENT_COLORS), range=list(SENTIMENT_COLORS.values())
+        ), legend=None),
+        tooltip=["Sentiment:N", alt.Tooltip("Count:Q", format=",d"), alt.Tooltip("Share:Q", format=".2%")],
+    ).properties(height=120)
+    st.altair_chart(chart, use_container_width=True)
+    st.caption("Test counts verified on the seed-42 held-out split.")
