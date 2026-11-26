@@ -6,6 +6,7 @@ scikit-learn==1.8.0
 matplotlib==3.10.8
 gensim==4.4.0
 joblib==1.5.3
+kagglehub==1.0.3
 # Use the CPU wheel for Python 3.12 on Linux x86-64 (Community Cloud).
 torch @ https://download-r2.pytorch.org/whl/cpu/torch-2.10.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl ; sys_platform == "linux" and platform_machine == "x86_64" and python_version == "3.12"
 torch==2.10.0 ; sys_platform != "linux" or platform_machine != "x86_64" or python_version != "3.12"
