@@ -37,14 +37,16 @@ Streamlit Community Cloud
 - M4: November 29, 2026
 - Demo: TBD
 
-## Setup
-1. Install dependencies:
-   `pip install -r requirements.txt`
-2. Place the dataset at `data/`.
-3. Run feature engineering:
-   `python src/3521alphaflagship_dataengineer.py --data data/dataset.csv`
-4. Launch the app:
-   `streamlit run app.py`
+## Run the app
+
+Use Python 3.12 from the repository root.
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+streamlit run app.py
+```
 
 ## M2 Progress
 - Cleaned dataset: 46,318 reviews.
