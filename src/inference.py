@@ -11,7 +11,7 @@ from scipy.sparse import diags
 LABELS = {0: "Negative", 1: "Positive"}
 
 
-def clean_text(text):
+def clean_text(text):11
     text = str(text).lower()
     text = re.sub(r"<[^>]+>", " ", text)
     text = re.sub(r"[^a-z0-9\s']", " ", text)
