@@ -1,0 +1,124 @@
+{
+  "milestone_1": {
+    "original_reviews": 50000,
+    "positive_reviews": 39105,
+    "negative_reviews": 10895,
+    "average_review_length_words": 80.04868,
+    "duplicate_review_texts": 3682,
+    "missing_review_summaries": 1,
+    "five_star_reviews": 32097,
+    "rating_counts": {
+      "1": 4528,
+      "2": 2576,
+      "3": 3791,
+      "4": 7008,
+      "5": 32097
+    }
+  },
+  "cleaned_reviews": 46318,
+  "training_reviews": 37054,
+  "testing_reviews": 9264,
+  "training_sentiment_counts": {
+    "0": 8075,
+    "1": 28979
+  },
+  "testing_sentiment_counts": {
+    "0": 2019,
+    "1": 7245
+  },
+  "tfidf_vocabulary_size": 5000,
+  "training_tfidf_shape": [
+    37054,
+    5000
+  ],
+  "testing_tfidf_shape": [
+    9264,
+    5000
+  ],
+  "word2vec_embedding_dimensions": 100,
+  "word2vec_vocabulary_size": 22085,
+  "top_positive_features": [
+    {
+      "word": "great",
+      "difference": 0.00811062530835132
+    },
+    {
+      "word": "love",
+      "difference": 0.005969235990289981
+    },
+    {
+      "word": "best",
+      "difference": 0.004861468523578485
+    },
+    {
+      "word": "delicious",
+      "difference": 0.004250125440968571
+    },
+    {
+      "word": "loves",
+      "difference": 0.0036962073742533965
+    },
+    {
+      "word": "perfect",
+      "difference": 0.003538705687499993
+    },
+    {
+      "word": "we",
+      "difference": 0.003445294346030487
+    },
+    {
+      "word": "excellent",
+      "difference": 0.003032543873263358
+    },
+    {
+      "word": "favorite",
+      "difference": 0.002986991128061331
+    },
+    {
+      "word": "wonderful",
+      "difference": 0.0027734567963445477
+    }
+  ],
+  "top_negative_features": [
+    {
+      "word": "not",
+      "difference": -0.007789758196159857
+    },
+    {
+      "word": "was",
+      "difference": -0.006247193365865543
+    },
+    {
+      "word": "disappointed",
+      "difference": -0.003883487949888529
+    },
+    {
+      "word": "bad",
+      "difference": -0.0038753491162602004
+    },
+    {
+      "word": "were",
+      "difference": -0.0037501841580496213
+    },
+    {
+      "word": "but",
+      "difference": -0.0036594271962898063
+    },
+    {
+      "word": "would",
+      "difference": -0.0035188002203908574
+    },
+    {
+      "word": "thought",
+      "difference": -0.003408661411029592
+    },
+    {
+      "word": "did",
+      "difference": -0.003137419249623018
+    },
+    {
+      "word": "money",
+      "difference": -0.002984336047760059
+    }
+  ]
+}
